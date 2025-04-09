@@ -2,41 +2,49 @@ from flask import Flask, request, jsonify
 import whisper
 import os
 
+
 app = Flask(__name__)
+
+
+
 
 # Load the Whisper model once when the server starts
 model = whisper.load_model("tiny")  # You can change to "base", "small", etc.
 
-@app.route('/transcribe', methods=['GET'])
+@app.route('/transcribe2', methods=['GET'])
 def transcribe_audio():
-    # Get audio file path from the query parameters
+    
     file_path = request.args.get('file_path')
+    print(file_path)
+    import subprocess
 
-    model = whisper.load_model("tiny")
+    # 🎩 Monkey patch subprocess.Popen เพื่อซ่อน CMD window
+    _original_popen = subprocess.Popen
+    def _hidden_popen(*args, **kwargs):
+        kwargs.setdefault("creationflags", subprocess.CREATE_NO_WINDOW)
+        return _original_popen(*args, **kwargs)
+    subprocess.Popen = _hidden_popen
 
-# Path to your audio file
-    audio_file = "C:/kawin/work test/Whisper AI/voip.wav"  # Use full path if needed
 
-# Process the audio
-    result = model.transcribe(audio_file, fp16=False)
-    return jsonify({"transcription": result["text"]})
     
-    # if not file_path:
-    #     return jsonify({"error": "No file_path provided"}), 400
+    if not file_path:
+        return jsonify({"error": "No file_path provided"}), 400
     
-    # try:
-    #     # Check if file exists
-    #     if not os.path.exists(file_path):
-    #         return jsonify({"error": f"File not found: {file_path}"}), 404
+    try:
+        # Check if file exists
+        if not os.path.exists(file_path):
+            return jsonify({"error": f"File not found: {file_path}"}), 404
         
-    #     # Transcribe the audio
-    #     result = model.transcribe(file_path, fp16=False)
+        # Transcribe the audio
+        result = model.transcribe(file_path, fp16=False)
         
-    #     # Return the transcription
-    #     return jsonify({"transcription": result["text"]})
+        # Return the transcription
+        return jsonify({"transcription": result["text"]})
     
-    # except Exception as e:
-    #     return jsonify({"error": str(e)}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 
 
 @app.route('/' ,methods=['GET'])

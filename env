@@ -2,3 +2,6 @@ python v.13
 https://www.gyan.dev/ffmpeg/builds/#git-master-builds
 set ffemp \bin
 pip update
+
+
+run http://localhost:5000/transcribe2?file_path=C:/kawin/work%20test/Whisper%20AI/voip.wav
