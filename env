@@ -1,0 +1,4 @@
+python v.13
+https://www.gyan.dev/ffmpeg/builds/#git-master-builds
+set ffemp \bin
+pip update
